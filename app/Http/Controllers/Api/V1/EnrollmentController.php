@@ -2,30 +2,66 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use Illuminate\Routing\Controller as Controller;
+use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Http\Request;
 use App\Models\Enrollment;
 use App\Http\Requests\EnrollmentRequest;
+use Illuminate\Http\JsonResponse;
+use Throwable;
 
-class EnrollmentController extends Controller
+class EnrollmentController extends BaseController
 {
-    //
-    public function store(EnrollmentRequest $request)
+    /**
+     * Enroll a user in a course run
+     */
+    public function store(EnrollmentRequest $request): JsonResponse
     {
-        $enroll = Enrollment::firstOrCreate([
-            'user_id' => $request->user()->id,
-            'course_run_id' => $request->course_run_id,
-        ]);
+        try {
+            $userId = $request->user()->id;
+            $courseRunId = $request->validated()['course_run_id'];
 
-        return response()->json($enroll, 201);
+            $enroll = Enrollment::firstOrCreate([
+                'user_id' => $userId,
+                'course_run_id' => $courseRunId,
+            ], [
+                'status' => 'enrolled',
+                'enrolled_at' => now()
+            ]);
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Enrollment successful',
+                'data' => $enroll
+            ], 201);
+        } catch (Throwable $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Failed to enroll in course',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
-    public function myCourses(Request $request)
+    /**
+     * List all courses a user is enrolled in
+     */
+    public function myCourses(Request $request): JsonResponse
     {
-        $courses = Enrollment::where('user_id', $request->user()->id)
-            ->with('courseRun.course')
-            ->get();
+        try {
+            $courses = Enrollment::where('user_id', $request->user()->id)
+                ->with('courseRun.course')
+                ->get();
 
-        return response()->json($courses);
+            return response()->json([
+                'status' => true,
+                'data' => $courses
+            ]);
+        } catch (Throwable $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Failed to fetch enrolled courses',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 }

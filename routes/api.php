@@ -4,6 +4,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\V1\{
     AuthController,
     CourseController,
+    CourseVersionController,
+    CourseRunController,
     EnrollmentController,
     PaymentController,
     ProfileController,
@@ -27,6 +29,11 @@ Route::prefix('v1')->group(function () {
 
     // Public course listing (index & show only)
     Route::apiResource('courses', CourseController::class)->only(['index', 'show']);
+    Route::get('/course-versions', [CourseVersionController::class, 'index']);
+    Route::get('/course-versions/{id}', [CourseVersionController::class, 'show']);
+    Route::get('/course-runs', [CourseRunController::class, 'index']);
+    Route::get('/course-runs/{id}', [CourseRunController::class, 'show']);
+
     // Public module listing (index & show only)
     Route::apiResource('modules', ModuleController::class)->only(['index', 'show']);
     // Public lesson listing (index & show only)
@@ -53,6 +60,12 @@ Route::prefix('v1')->group(function () {
 
         // Instructor: Course Management
         Route::apiResource('courses', CourseController::class)->only([
+            'store', 'update', 'destroy'
+        ]);
+        Route::apiResource('course-runs', CourseRunController::class)->only([
+            'store', 'update', 'destroy'
+        ]);
+        Route::apiResource('course-versions', CourseVersionController::class)->only([
             'store', 'update', 'destroy'
         ]);
         // Instructor: Module Management

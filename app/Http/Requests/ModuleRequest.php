@@ -17,6 +17,6 @@ class ModuleRequest extends FormRequest
             'course_version_id' => 'required|uuid|exists:course_versions,id',
             'title' => 'required|string|max:255',
             'order' => 'nullable|integer|min:1',
-        ];
+        ]; 
     }
 }

@@ -8,6 +8,7 @@ use App\Models\Module;
 use App\Services\ModuleService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Throwable;
 
 class ModuleController extends Controller
 {
@@ -21,34 +22,92 @@ class ModuleController extends Controller
 
     public function index(Request $request): JsonResponse
     {
-        $modules = $this->service->all($request->all());
-        return response()->json($modules);
+        try {
+            $modules = $this->service->all($request->all());
+            return response()->json([
+                'status' => true,
+                'data' => $modules
+            ]);
+        } catch (Throwable $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Failed to fetch modules',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     public function store(ModuleRequest $request): JsonResponse
     {
-        $module = $this->service->store($request->validated());
-        return response()->json($module, 201);
+        try {
+            $module = $this->service->store($request->validated());
+            return response()->json([
+                'status' => true,
+                'message' => 'Module created successfully',
+                'data' => $module
+            ], 201);
+        } catch (Throwable $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Failed to create module',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     public function show(string $id): JsonResponse
     {
-        $module = Module::with('courseVersion')->findOrFail($id);
-        return response()->json($module);
+        try {
+            $module = Module::with('lessons', 'courseVersion')->findOrFail($id);
+            return response()->json([
+                'status' => true,
+                'data' => $module
+            ]);
+        } catch (Throwable $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Module not found',
+                'error' => $e->getMessage()
+            ], 404);
+        }
     }
 
     public function update(ModuleRequest $request, string $id): JsonResponse
     {
-        $module = Module::findOrFail($id);
-        $module = $this->service->update($module, $request->validated());
-        return response()->json($module);
+        try {
+            $module = Module::findOrFail($id);
+            $module = $this->service->update($module, $request->validated());
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Module updated successfully',
+                'data' => $module
+            ]);
+        } catch (Throwable $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Failed to update module',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     public function destroy(string $id): JsonResponse
     {
-        $module = Module::findOrFail($id);
-        $this->service->delete($module);
+        try {
+            $module = Module::findOrFail($id);
+            $this->service->delete($module);
 
-        return response()->json(['message' => 'Module deleted successfully']);
+            return response()->json([
+                'status' => true,
+                'message' => 'Module deleted successfully'
+            ]);
+        } catch (Throwable $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Failed to delete module',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 }

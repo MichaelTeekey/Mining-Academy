@@ -3,52 +3,112 @@
 namespace App\Http\Controllers\Api\V1;
 
 use Illuminate\Routing\Controller as Controller;
+use App\Http\Requests\RegisterRequest;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use App\Models\User;
+use Illuminate\Support\Str;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Database\QueryException;
+use Throwable;
 
 class AuthController extends Controller
 {
-    //
-    public function register(Request $request)
+    /**
+     * Register a new user
+     */
+    public function register(RegisterRequest $request): JsonResponse
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users',
-            'password' => 'required|min:6|confirmed',
-        ]);
+        try {
+            $data = $request->validated();
 
-        $user = User::create([
-            'name' => $validated['name'],
-            'email' => $validated['email'],
-            'password' => Hash::make($validated['password']),
-        ]);
+            $user = User::create([
+                'id' => Str::uuid(),
+                'name' => $data['name'],
+                'email' => $data['email'],
+                'password' => Hash::make($data['password']),
+                'account_type' => $data['account_type'],
+                'organization_id' => $data['organization_id'] ?? null,
+            ]);
 
-        $token = $user->createToken('api_token')->plainTextToken;
+            $token = $user->createToken('auth_token')->plainTextToken;
 
-        return response()->json(['user' => $user, 'token' => $token], 201);
-    }
-
-    public function login(Request $request)
-    {
-        $credentials = $request->validate([
-            'email' => 'required|email',
-            'password' => 'required',
-        ]);
-
-        $user = User::where('email', $credentials['email'])->first();
-
-        if (! $user || ! Hash::check($credentials['password'], $user->password)) {
-            return response()->json(['message' => 'Invalid credentials'], 401);
+            return response()->json([
+                'status' => true,
+                'message' => 'Registration successful',
+                'user' => $user,
+                'token' => $token,
+            ], 201);
+        } catch (QueryException $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Database error during registration',
+                'error' => $e->getMessage(),
+            ], 500);
+        } catch (Throwable $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Unexpected server error',
+                'error' => $e->getMessage(),
+            ], 500);
         }
-
-        $token = $user->createToken('api_token')->plainTextToken;
-        return response()->json(['user' => $user, 'token' => $token]);
     }
 
-    public function logout(Request $request)
+    /**
+     * Login user and return token
+     */
+    public function login(Request $request): JsonResponse
     {
-        $request->user()->tokens()->delete();
-        return response()->json(['message' => 'Logged out']);
+        try {
+            $request->validate([
+                'email' => 'required|email',
+                'password' => 'required|string',
+            ]);
+
+            $user = User::where('email', $request->email)->first();
+
+            if (! $user || ! Hash::check($request->password, $user->password)) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Invalid credentials',
+                ], 401);
+            }
+
+            $token = $user->createToken('auth_token')->plainTextToken;
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Login successful',
+                'user' => $user,
+                'token' => $token,
+            ]);
+        } catch (Throwable $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Unexpected server error',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Logout the authenticated user
+     */
+    public function logout(Request $request): JsonResponse
+    {
+        try {
+            $request->user()->tokens()->delete();
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Successfully logged out',
+            ]);
+        } catch (Throwable $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Failed to logout',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
     }
 }
