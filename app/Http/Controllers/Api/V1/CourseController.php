@@ -3,48 +3,56 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
+use App\Http\Requests\CourseRequest;
 use App\Models\Course;
-use App\Http\Requests\StoreCourseRequest;
-use App\Http\Requests\UpdateCourseRequest;
+use App\Services\CourseService;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class CourseController extends Controller
 {
-    //
-    public function index()
+    protected CourseService $service;
+
+    public function __construct(CourseService $service)
     {
-        return Course::with('instructor')->where('status','published')->get();
+     
+        $this->middleware('auth:sanctum')->except(['index', 'show']);
+        $this->service = $service;
+
     }
 
-    public function show($id)
+    public function index(Request $request): JsonResponse
     {
-        $course = Course::with(['instructor','courseVersions.modules.lessons'])
-            ->findOrFail($id);
-        return response()->json($course);
+        $courses = $this->service->all($request->all());
+        return response()->json($courses);
     }
 
-    public function store(StoreCourseRequest $request)
+    public function store(CourseRequest $request): JsonResponse
     {
-        $course = Course::create([
-            'title' => $request->title,
-            'description' => $request->description,
-            'price' => $request->price,
-            'is_free' => $request->is_free,
-            'instructor_id' => $request->user()->id,
-        ]);
+        $course = $this->service->store($request->validated());
         return response()->json($course, 201);
     }
 
-    public function update(UpdateCourseRequest $request, $id)
+    public function show(string $id): JsonResponse
     {
-        $course = Course::findOrFail($id);
-        $course->update($request->validated());
+        $course = Course::with(['instructor', 'courseVersions', 'courseRuns', 'modules'])
+            ->findOrFail($id);
+
         return response()->json($course);
     }
 
-    public function destroy($id)
+    public function update(CourseRequest $request, string $id): JsonResponse
     {
-        Course::findOrFail($id)->delete();
-        return response()->json(['message' => 'Course deleted']);
+        $course = Course::findOrFail($id);
+        $course = $this->service->update($course, $request->validated());
+        return response()->json($course);
+    }
+
+    public function destroy(string $id): JsonResponse
+    {
+        $course = Course::findOrFail($id);
+        $this->service->delete($course);
+
+        return response()->json(['message' => 'Course deleted successfully']);
     }
 }

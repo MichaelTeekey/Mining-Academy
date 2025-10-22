@@ -1,37 +1,75 @@
 <?php
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\V1\{
-    AuthController, CourseController, EnrollmentController, PaymentController, ProfileController
+    AuthController,
+    CourseController,
+    EnrollmentController,
+    PaymentController,
+    ProfileController,
+    ModuleController,
+    LessonController,
+    MediaFileController,
+    VideoController,
+    VideoRenditionController
 };
-
-Route::get('/user', function (Request $request) {
-    return $request->user();
-})->middleware('auth:sanctum');
 
 Route::prefix('v1')->group(function () {
 
-    // --- Public ---
-    Route::post('/register', [AuthController::class, 'register']);
-    Route::post('/login', [AuthController::class, 'login']);
-    Route::get('/courses', [CourseController::class, 'index']);
-    Route::get('/courses/{id}', [CourseController::class, 'show']);
+    /**
+     * -------------------------
+     * Public Routes
+     * -------------------------
+     */
+    Route::post('/register', [AuthController::class, 'register'])->name('auth.register');
+    Route::post('/login', [AuthController::class, 'login'])->name('auth.login');
 
-    // --- Protected ---
+    // Public course listing (index & show only)
+    Route::apiResource('courses', CourseController::class)->only(['index', 'show']);
+    // Public module listing (index & show only)
+    Route::apiResource('modules', ModuleController::class)->only(['index', 'show']);
+    // Public lesson listing (index & show only)
+    Route::apiResource('lessons', LessonController::class)->only(['index', 'show']);
+    // Public media file listing (index & show only)
+    Route::apiResource('media-files', MediaFileController::class)->only(['index', 'show']);
+    // Public video listing (index & show only)
+    Route::apiResource('videos', VideoController::class)->only(['index', 'show']);
+    // Public video rendition listing (index & show only)
+    Route::apiResource('video-renditions', VideoRenditionController::class)->only(['index', 'show']);
+    /**
+     * -------------------------
+     * Protected Routes
+     * -------------------------
+     */
     Route::middleware('auth:sanctum')->group(function () {
-        Route::get('/me', [ProfileController::class, 'me']);
-        Route::post('/logout', [AuthController::class, 'logout']);
 
-        // Instructor actions
-        Route::post('/courses', [CourseController::class, 'store']);
-        Route::put('/courses/{id}', [CourseController::class, 'update']);
-        Route::delete('/courses/{id}', [CourseController::class, 'destroy']);
+        // Profile
+        Route::get('/me', [ProfileController::class, 'me'])->name('profile.me');
+        Route::post('/logout', [AuthController::class, 'logout'])->name('auth.logout');
 
-        // Student actions
-        Route::post('/enroll', [EnrollmentController::class, 'store']);
-        Route::get('/my-courses', [EnrollmentController::class, 'myCourses']);
-        Route::post('/pay', [PaymentController::class, 'store']);
-        Route::get('/payments', [PaymentController::class, 'index']);
+        // Instructor: Course Management
+        Route::apiResource('courses', CourseController::class)->only([
+            'store', 'update', 'destroy'
+        ]);
+        // Instructor: Module Management
+        Route::apiResource('modules', ModuleController::class)->only([
+            'store', 'update', 'destroy'
+        ]);
+
+        // Instructor: Lesson Management
+        Route::apiResource('lessons', LessonController::class)->only(['store', 'update', 'destroy']);
+
+        // Instructor: Media File Management
+        Route::apiResource('media-files', MediaFileController::class)->only(['store', 'update', 'destroy']);    
+        // Instructor: Video Management
+        Route::apiResource('videos', VideoController::class)->only(['store', 'update', 'destroy']);
+        // Instructor: Video Rendition Management
+        Route::apiResource('video-renditions', VideoRenditionController::class)->only(['store', 'update', 'destroy']);
+        // Student: Enrollment & Payments
+        Route::post('/enroll', [EnrollmentController::class, 'store'])->name('enrollments.store');
+        Route::get('/my-courses', [EnrollmentController::class, 'myCourses'])->name('enrollments.myCourses');
+
+        Route::post('/pay', [PaymentController::class, 'store'])->name('payments.store');
+        Route::get('/payments', [PaymentController::class, 'index'])->name('payments.index');
     });
 });
