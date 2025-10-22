@@ -2,14 +2,14 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use App\Http\Controllers\Controller;
+use Illuminate\Routing\Controller as BaseController;
 use App\Http\Requests\VideoRenditionRequest;
 use App\Models\VideoRendition;
 use App\Services\VideoRenditionService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
-class VideoRenditionController extends Controller
+class VideoRenditionController extends BaseController
 {
     protected VideoRenditionService $service;
 

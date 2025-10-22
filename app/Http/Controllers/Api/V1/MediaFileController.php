@@ -2,14 +2,14 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use App\Http\Controllers\Controller;
+use Illuminate\Routing\Controller as BaseController;
 use App\Http\Requests\MediaFileRequest;
 use App\Models\MediaFile;
 use App\Services\MediaFileService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
-class MediaFileController extends Controller
+class MediaFileController extends BaseController
 {
     protected MediaFileService $service;
 

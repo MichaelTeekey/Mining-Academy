@@ -2,14 +2,14 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use App\Http\Controllers\Controller;
+use Illuminate\Routing\Controller as BaseController;
 use App\Http\Requests\LessonRequest;
 use App\Models\Lesson;
 use App\Services\LessonService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
-class LessonController extends Controller
+class LessonController extends BaseController
 {
     protected LessonService $service;
 

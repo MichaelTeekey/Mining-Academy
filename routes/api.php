@@ -11,7 +11,8 @@ use App\Http\Controllers\Api\V1\{
     LessonController,
     MediaFileController,
     VideoController,
-    VideoRenditionController
+    VideoRenditionController,
+    TranscodingJobController
 };
 
 Route::prefix('v1')->group(function () {
@@ -36,6 +37,9 @@ Route::prefix('v1')->group(function () {
     Route::apiResource('videos', VideoController::class)->only(['index', 'show']);
     // Public video rendition listing (index & show only)
     Route::apiResource('video-renditions', VideoRenditionController::class)->only(['index', 'show']);
+    // 
+    Route::apiResource('transcoding-jobs', TranscodingJobController::class)->only(['index','show']);
+
     /**
      * -------------------------
      * Protected Routes
@@ -68,6 +72,7 @@ Route::prefix('v1')->group(function () {
         // Student: Enrollment & Payments
         Route::post('/enroll', [EnrollmentController::class, 'store'])->name('enrollments.store');
         Route::get('/my-courses', [EnrollmentController::class, 'myCourses'])->name('enrollments.myCourses');
+        Route::apiResource('transcoding-jobs', TranscodingJobController::class)->only(['store','update','destroy']);
 
         Route::post('/pay', [PaymentController::class, 'store'])->name('payments.store');
         Route::get('/payments', [PaymentController::class, 'index'])->name('payments.index');

@@ -2,14 +2,14 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use App\Http\Controllers\Controller;
+use Illuminate\Routing\Controller as BaseController;
 use App\Http\Requests\VideoRequest;
 use App\Models\Video;
 use App\Services\VideoService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
-class VideoController extends Controller
+class VideoController extends BaseController
 {
     protected VideoService $service;
 
