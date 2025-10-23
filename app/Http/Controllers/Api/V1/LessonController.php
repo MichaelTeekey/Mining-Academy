@@ -8,6 +8,7 @@ use App\Models\Lesson;
 use App\Services\LessonService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Throwable;
 
 class LessonController extends BaseController
@@ -24,11 +25,15 @@ class LessonController extends BaseController
     {
         try {
             $lessons = $this->service->all($request->all());
+            log::info('Fetched lessons', ['count' => count($lessons)]);
             return response()->json([
                 'status' => true,
                 'data' => $lessons
             ]);
         } catch (Throwable $e) {
+            log::error('Error fetching lessons', [
+                'error' => $e->getMessage()
+            ]);
             return response()->json([
                 'status' => false,
                 'message' => 'Failed to fetch lessons',
@@ -41,12 +46,16 @@ class LessonController extends BaseController
     {
         try {
             $lesson = $this->service->store($request->validated());
+            log::info('Created lesson', ['lesson_id' => $lesson->id]);
             return response()->json([
                 'status' => true,
                 'message' => 'Lesson created successfully',
                 'data' => $lesson
             ], 201);
         } catch (Throwable $e) {
+            log::error('Error creating lesson', [
+                'error' => $e->getMessage()
+            ]);
             return response()->json([
                 'status' => false,
                 'message' => 'Failed to create lesson',
@@ -64,6 +73,10 @@ class LessonController extends BaseController
                 'data' => $lesson
             ]);
         } catch (Throwable $e) {
+            log::error('Error fetching lesson', [
+                'error' => $e->getMessage(),
+                'lesson_id' => $id
+            ]);
             return response()->json([
                 'status' => false,
                 'message' => 'Lesson not found',
@@ -76,6 +89,7 @@ class LessonController extends BaseController
     {
         try {
             $lesson = Lesson::findOrFail($id);
+            log::info('Updating lesson', ['lesson_id' => $id]);
             $lesson = $this->service->update($lesson, $request->validated());
 
             return response()->json([
@@ -84,6 +98,10 @@ class LessonController extends BaseController
                 'data' => $lesson
             ]);
         } catch (Throwable $e) {
+            log::error('Error updating lesson', [
+                'error' => $e->getMessage(),
+                'lesson_id' => $id
+            ]);
             return response()->json([
                 'status' => false,
                 'message' => 'Failed to update lesson',
@@ -103,6 +121,10 @@ class LessonController extends BaseController
                 'message' => 'Lesson deleted successfully'
             ]);
         } catch (Throwable $e) {
+            log::error('Error deleting lesson', [
+                'error' => $e->getMessage(),
+                'lesson_id' => $id
+            ]);
             return response()->json([
                 'status' => false,
                 'message' => 'Failed to delete lesson',

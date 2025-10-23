@@ -8,6 +8,8 @@ use App\Models\Module;
 use App\Services\ModuleService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+
 use Throwable;
 
 class ModuleController extends Controller
@@ -24,11 +26,13 @@ class ModuleController extends Controller
     {
         try {
             $modules = $this->service->all($request->all());
+            Log::info('Fetched modules', ['count' => count($modules)]);
             return response()->json([
                 'status' => true,
                 'data' => $modules
             ]);
         } catch (Throwable $e) {
+            log::error('Failed to fetch modules', ['error' => $e->getMessage()]);
             return response()->json([
                 'status' => false,
                 'message' => 'Failed to fetch modules',
@@ -41,12 +45,14 @@ class ModuleController extends Controller
     {
         try {
             $module = $this->service->store($request->validated());
+            Log::info('Module created', ['module_id' => $module->id]);
             return response()->json([
                 'status' => true,
                 'message' => 'Module created successfully',
                 'data' => $module
             ], 201);
         } catch (Throwable $e) {
+            Log::error('Failed to create module', ['error' => $e->getMessage()]);
             return response()->json([
                 'status' => false,
                 'message' => 'Failed to create module',
@@ -64,6 +70,7 @@ class ModuleController extends Controller
                 'data' => $module
             ]);
         } catch (Throwable $e) {
+            Log::error('Module not found', ['error' => $e->getMessage()]);
             return response()->json([
                 'status' => false,
                 'message' => 'Module not found',
@@ -84,6 +91,7 @@ class ModuleController extends Controller
                 'data' => $module
             ]);
         } catch (Throwable $e) {
+            Log::error('Failed to update module', ['error' => $e->getMessage()]);
             return response()->json([
                 'status' => false,
                 'message' => 'Failed to update module',
@@ -103,6 +111,7 @@ class ModuleController extends Controller
                 'message' => 'Module deleted successfully'
             ]);
         } catch (Throwable $e) {
+            Log::error('Failed to delete module', ['error' => $e->getMessage()]);
             return response()->json([
                 'status' => false,
                 'message' => 'Failed to delete module',

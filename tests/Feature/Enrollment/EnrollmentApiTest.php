@@ -34,12 +34,24 @@ class EnrollmentApiTest extends TestCase
         ]);
 
         $course = Course::factory()->create();
-        $run = CourseRun::factory()->create(['course_id' => $course->id]);
+
+        // create an ACTIVE course run (ensure any validation that requires start/end dates passes)
+        $run = CourseRun::factory()->create([
+            'course_id' => $course->id,
+            'start_date' => now()->subDay()->toDateString(),
+            'end_date' => now()->addMonth()->toDateString(),
+        ]);
 
         Sanctum::actingAs($user, ['*']);
 
-        $this->postJson('/api/v1/enroll', ['course_run_id' => $run->id])
-            ->assertStatus(201)
+        $response = $this->postJson('/api/v1/enroll', ['course_run_id' => $run->id]);
+
+        // dump response when not created to inspect why the API returned 403/422 etc.
+        if ($response->status() !== 201) {
+            $response->dump();
+        }
+
+        $response->assertStatus(201)
             ->assertJsonStructure([
                 'data' => ['id','user_id','course_run_id','enrolled_at']
             ]);

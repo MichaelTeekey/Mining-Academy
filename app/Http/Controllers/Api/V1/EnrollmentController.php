@@ -27,13 +27,25 @@ class EnrollmentController extends BaseController
     {
         try {
             $userId = $request->user()->id;
+            log::info('Enrolling user', [
+                'user_id' => $userId, 
+                'course_run_id' => $request->course_run_id
+            ]);
             $enrollment = $this->service->enrollUser($userId, $request->course_run_id);
-
+            log::info('User enrolled successfully', [
+                'user_id' => $userId, 
+                'course_run_id' => $request->course_run_id
+            ]);
             return response()->json([
                 'message' => 'Enrollment successful',
                 'data' => $enrollment
             ], 201);
         } catch (Exception $e) {
+            log::error('Error enrolling user', [
+                'error' => $e->getMessage(),
+                'user_id' => $userId ?? null,
+                'course_run_id' => $request->course_run_id ?? null
+            ]);
             return response()->json([
                 'error' => $e->getMessage()
             ], 500);
