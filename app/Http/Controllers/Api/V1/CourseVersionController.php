@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1;
 
 use Illuminate\Routing\Controller as BaseController;
 use App\Http\Requests\CourseVersionRequest;
+use Illuminate\Support\Facades\Log;
 use App\Models\CourseVersion;
 use App\Services\CourseVersionService;
 use Illuminate\Http\JsonResponse;
@@ -24,8 +25,13 @@ class CourseVersionController extends BaseController
     {
         try {
             $versions = $this->service->all($request->all());
+
             return response()->json(['status'=>true,'data'=>$versions]);
         } catch (Throwable $e) {
+            log::error('Error fetching course versions', [
+                'error' => $e->getMessage(),
+                'ip' => $request->ip(),
+            ]);
             return response()->json(['status'=>false,'message'=>'Failed to fetch course versions','error'=>$e->getMessage()],500);
         }
     }
@@ -34,8 +40,16 @@ class CourseVersionController extends BaseController
     {
         try {
             $version = $this->service->store($request->validated());
+            log::info('Course version created successfully', [
+                'course_version_id' => $version->id,
+                'ip' => $request->ip(),
+            ]);
             return response()->json(['status'=>true,'message'=>'Course version created successfully','data'=>$version],201);
         } catch (Throwable $e) {
+            log::error('Error creating course version', [
+                'error' => $e->getMessage(),
+                'ip' => $request->ip(),
+            ]);
             return response()->json(['status'=>false,'message'=>'Failed to create course version','error'=>$e->getMessage()],500);
         }
     }

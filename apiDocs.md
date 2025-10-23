@@ -1,6 +1,6 @@
 # Mining Academy - API Documentation
 
-Base path: /api/v1
+Base path: https://mining.zomacdigital.co.zw/api/v1
 
 ---
 

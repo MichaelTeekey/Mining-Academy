@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1;
 
 use Illuminate\Routing\Controller as Controller;
 use App\Http\Requests\CourseRequest;
+use Illuminate\Support\Facades\Log;
 use App\Models\Course;
 use App\Services\CourseService;
 use Illuminate\Http\JsonResponse;
@@ -27,11 +28,16 @@ class CourseController extends Controller
     {
         try {
             $courses = $this->service->all($request->all());
+
             return response()->json([
                 'status' => true,
                 'data' => $courses
             ]);
         } catch (Throwable $e) {
+            log::error('Error fetching courses', [
+                'error' => $e->getMessage(),
+                'ip' => $request->ip(),
+            ]);
             return response()->json([
                 'status' => false,
                 'message' => 'Failed to fetch courses',
@@ -47,8 +53,28 @@ class CourseController extends Controller
     {
         try {
             $data = $request->validated();
+
+            log::info('Creating new course', [
+                'title' => $data['title'],
+                'instructor_id' => $request->user()->id,
+                'ip' => $request->ip(),
+            ]);
+
             $data['instructor_id'] = $request->user()->id;
+
+            log::info('Storing new course', [
+                'title' => $data['title'],
+                'instructor_id' => $data['instructor_id'],
+                'ip' => $request->ip(),
+            ]);
+
             $course = $this->service->store($data);
+
+            log::info('Course created successfully', [
+                'course_id' => $course->id,
+                'instructor_id' => $course->instructor_id,
+                'ip' => $request->ip(),
+            ]);
 
             return response()->json([
                 'status' => true,
@@ -56,6 +82,11 @@ class CourseController extends Controller
                 'data' => $course
             ], 201);
         } catch (Throwable $e) {
+            log::error('Error creating course', [
+                'error' => $e->getMessage(),
+                'ip' => $request->ip(),
+            ]);
+
             return response()->json([
                 'status' => false,
                 'message' => 'Failed to create course',
@@ -78,6 +109,10 @@ class CourseController extends Controller
                 'data' => $course
             ]);
         } catch (Throwable $e) {
+            log::error('Error fetching course', [
+                'course_id' => $id,
+                'error' => $e->getMessage(),
+            ]);
             return response()->json([
                 'status' => false,
                 'message' => 'Course not found',
@@ -93,8 +128,17 @@ class CourseController extends Controller
     {
         try {
             $course = Course::findOrFail($id);
-            $updated = $this->service->update($course, $request->validated());
+            log::info('Updating course', [
+                'course_id' => $course->id,
+                'ip' => $request->ip(),
+            ]);
 
+            $updated = $this->service->update($course, $request->validated());
+            
+            log::info('Course updated successfully', [
+                'course_id' => $course->id,
+                'ip' => $request->ip(),
+            ]);
             return response()->json([
                 'status' => true,
                 'message' => 'Course updated successfully',
