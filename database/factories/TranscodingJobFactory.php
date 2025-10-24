@@ -13,18 +13,20 @@ class TranscodingJobFactory extends Factory
 
     public function definition()
     {
+        // create a Video if a factory exists; otherwise try to use first Video
+        $videoId = null;
+        if (method_exists(Video::class, 'factory')) {
+            $videoId = Video::factory()->create()->id;
+        } else {
+            $videoId = Video::first()?->id;
+        }
+
         return [
             'id' => (string) Str::uuid(),
-
-            // most apps tie a transcoding job to a video record
-            // ensure App\Models\Video exists; otherwise set a valid existing id in tests
-            'video_id'      => Video::factory(), // use a Video factory or replace with an existing video id
-            'status'        => 'pending',
-            'output_format' => 'mp4',
-            'preset'        => 'default',
-            'meta'          => null,
-            'created_at'    => now(),
-            'updated_at'    => now(),
+            'video_id' => $videoId,
+            'status' => 'pending',
+            'created_at' => now(),
+            'updated_at' => now(),
         ];
     }
 }

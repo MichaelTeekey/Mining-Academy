@@ -22,6 +22,25 @@ class CourseService
     {
         return DB::transaction(function () use ($data) {
             $data['instructor_id'] = auth()->id();
+            $user = auth()->user();
+
+            if (! $user) {
+                abort(401, 'Unauthenticated.');
+            }
+
+            $allowed = false;
+
+            if (method_exists($user, 'hasRole')) {
+                $allowed = $user->hasRole('instructor') || $user->hasRole('admin');
+            } elseif (isset($user->role)) {
+                $allowed = in_array($user->role, ['instructor', 'admin']);
+            } else {
+                $allowed = !empty($user->is_admin) || !empty($user->is_instructor);
+            }
+
+            if (! $allowed) {
+                abort(403, 'Only instructors or admins can create courses.');
+            }
             return Course::create($data);
         });
     }
