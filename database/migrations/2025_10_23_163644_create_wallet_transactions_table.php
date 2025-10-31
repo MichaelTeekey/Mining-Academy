@@ -18,6 +18,7 @@ return new class extends Migration
             $table->decimal('amount', 14, 2);
             $table->text('description')->nullable();
             $table->string('reference')->nullable(); 
+            $table->softDeletes();
             $table->timestamps();
 
             $table->index(['wallet_id', 'type']);

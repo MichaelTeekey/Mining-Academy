@@ -16,6 +16,7 @@ return new class extends Migration
             $table->foreignUuid('media_file_id')->constrained('media_files')->cascadeOnDelete();
             $table->string('title');
             $table->text('description')->nullable();
+            $table->softDeletes();
             $table->timestamps();
         });
     }

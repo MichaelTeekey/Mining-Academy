@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('currency', 10)->default('USD');
             $table->string('transaction_id')->nullable();
             $table->enum('status',['pending','completed','failed'])->default('pending');
+            $table->softDeletes();
             $table->timestamps();
             
         });

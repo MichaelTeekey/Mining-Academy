@@ -78,6 +78,7 @@ class EnrollmentController extends BaseController
             ], 500);
         }
     }
+    
 
     /**
      * Optional: Delete an enrollment

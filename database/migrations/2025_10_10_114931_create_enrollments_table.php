@@ -17,6 +17,7 @@ return new class extends Migration
             $table->foreignUuid('course_run_id')->constrained()->cascadeOnDelete();
             $table->enum('status',['active','completed','cancelled'])->default('active');
             $table->timestamp('enrolled_at')->useCurrent();
+            $table->softDeletes();
             $table->timestamps();
             $table->unique(['user_id','course_run_id']);
         });

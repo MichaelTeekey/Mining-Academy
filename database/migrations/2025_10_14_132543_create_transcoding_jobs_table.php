@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('status')->default('pending'); // pending, processing, completed, failed
             $table->json('settings')->nullable(); // e.g., resolutions/formats
             $table->text('error_message')->nullable();
+            $table->softDeletes();
             $table->timestamps();
         });
     }

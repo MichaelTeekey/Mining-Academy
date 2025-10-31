@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('mime_type')->nullable();
             $table->integer('size')->nullable();
             $table->foreignUuid('lesson_id')->nullable()->constrained()->cascadeOnDelete();
+            $table->softDeletes();
             $table->timestamps();
         
         });

@@ -17,6 +17,7 @@ return new class extends Migration
             $table->decimal('balance', 14, 2)->default(0); 
             $table->string('currency', 10)->default('USD');
             $table->timestamps();
+            $table->softDeletes();
             $table->unique(['user_id']);
         });
     }

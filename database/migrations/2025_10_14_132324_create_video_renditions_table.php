@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('file_path');
             $table->string('mime_type')->nullable();
             $table->bigInteger('size')->nullable();
+            $table->softDeletes();
             $table->timestamps();
         });
     }

@@ -19,6 +19,7 @@ return new class extends Migration
             $table->decimal('price', 10, 2)->default(0);
             $table->boolean('is_free')->default(false);
             $table->enum('status', ['draft','published','archived'])->default('draft');
+            $table->softDeletes();
             $table->timestamps();
         });
     }
