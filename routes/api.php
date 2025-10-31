@@ -14,7 +14,8 @@ use App\Http\Controllers\Api\V1\{
     MediaFileController,
     VideoController,
     VideoRenditionController,
-    TranscodingJobController
+    TranscodingJobController,
+    WalletController
 };
 
 Route::prefix('v1')->group(function () {
@@ -72,6 +73,11 @@ Route::prefix('v1')->group(function () {
         Route::apiResource('modules', ModuleController::class)->only([
             'store', 'update', 'destroy'
         ]);
+        //wallet
+        Route::get('/wallet', [WalletController::class, 'show'])->name('wallet.show');
+        Route::post('/wallet/deposit', [WalletController::class, 'deposit'])->name('wallet.deposit');
+        Route::post('/wallet/withdraw', [WalletController::class, 'withdraw'])->name('wallet.withdraw');
+        Route::get('/wallet/transactions', [WalletController::class, 'transactions'])->name('wallet.transactions');
 
         // Instructor: Lesson Management
         Route::apiResource('lessons', LessonController::class)->only(['store', 'update', 'destroy']);

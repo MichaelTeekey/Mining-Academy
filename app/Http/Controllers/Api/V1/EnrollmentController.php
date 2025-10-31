@@ -62,10 +62,18 @@ class EnrollmentController extends BaseController
             $courses = $this->service->getUserCourses($userId);
 
             return response()->json([
-                'data' => $courses
+                'status' => true,
+                'data' => $courses,
             ]);
         } catch (Exception $e) {
+            Log::error('Error fetching user courses', [
+                'user_id' => $request->user()->id,
+                'error' => $e->getMessage()
+            ]);
+
             return response()->json([
+                'status' => false,
+                'message' => 'Failed to fetch enrolled courses',
                 'error' => $e->getMessage()
             ], 500);
         }

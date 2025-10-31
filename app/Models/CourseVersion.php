@@ -16,4 +16,8 @@ class CourseVersion extends BaseModel
     {
         return $this->hasMany(Module::class);
     }
+    public function lessons()
+    {
+        return $this->hasManyThrough(Lesson::class, Module::class);
+    }
 }

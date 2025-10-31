@@ -11,4 +11,9 @@ class Organization extends BaseModel
     {
         return $this->hasMany(User::class);
     }
+    public function courses()
+    {
+        return $this->hasManyThrough(Course::class, User::class, 'organization_id', 'instructor_id');
+    }
+
 }

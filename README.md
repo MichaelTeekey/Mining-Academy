@@ -1,61 +1,131 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+## 🧭 **System Overview**
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Your system is a **modular online learning platform** (similar to Coursera, Udemy, or Moodle) — but with deeper structure for course versioning, media management, wallet-based payments, and multi-organization support.
 
-## About Laravel
+It’s built to manage:
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+* Courses and their versions (content evolution)
+* Learning runs/sessions
+* User enrollments and payments
+* Lesson and media content
+* Wallet-based financial operations
+* Organizations that manage instructors and students
+* Video processing (transcoding and renditions)
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+---
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## 🧩 **Core Functional Domains**
 
-## Learning Laravel
+### 🧠 1. **Course Management**
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+* **Course** is the root entity.
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+  * Each course belongs to one **instructor** (a `User`).
+  * A course can have multiple **versions** (for iterative improvements).
+  * A course can also have multiple **runs** (different start/end dates — like class sessions).
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+**Purpose:**
+Allows instructors to create and improve their courses over time, while still keeping older versions active for ongoing runs.
 
-## Laravel Sponsors
+---
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+### 📚 2. **Course Content Hierarchy**
 
-### Premium Partners
+Each course version has **modules**, and each module has **lessons**.
+Lessons can include **media files** such as PDFs, videos, or slides.
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+Structure:
 
-## Contributing
+```
+Course → CourseVersion → Module → Lesson → MediaFile
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+**Purpose:**
+Keeps course content organized and version-controlled.
+If an instructor updates lessons or adds new media, it affects only the current version.
 
-## Code of Conduct
+---
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+### 🏫 3. **Course Runs & Enrollments**
 
-## Security Vulnerabilities
+* A **CourseRun** represents a scheduled delivery of a course version (e.g. "January 2025 Cohort").
+* Users **enroll** in specific runs through the `Enrollment` model.
+* Each enrollment has a `status` (e.g. pending, active, completed).
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+**Purpose:**
+Supports time-bound learning — so multiple cohorts can study the same course independently.
 
-## License
+---
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+### 💳 4. **Payments & Wallets**
+
+* Students can **pay** for enrollments using `Payment`.
+* Each payment is linked to both a **User** and a **CourseRun**.
+* Users also have a **Wallet**, storing a currency balance.
+* `WalletTransaction` logs all wallet activities (deposits, deductions, refunds).
+
+**Purpose:**
+Allows flexible payment systems — direct payments or wallet-based transactions.
+
+---
+
+### 🧑‍🏫 5. **User & Organization Structure**
+
+* Each **User** may belong to an **Organization**.
+* Organizations can have many users (students, instructors, admins).
+* Users have an `account_type` (likely “student”, “instructor”, or “admin”).
+
+**Purpose:**
+Enables multi-tenant or B2B scenarios — for example, a company can have multiple users under its umbrella taking courses.
+
+---
+
+### 🎥 6. **Video Processing & Media Management**
+
+* Each **Lesson** can have multiple **MediaFiles**, which may include videos.
+* Each **Video** is linked to a **MediaFile** and has multiple **VideoRenditions** (different resolutions).
+* A **TranscodingJob** tracks background video processing tasks and errors.
+
+**Purpose:**
+Supports scalable video management — automatically generating multiple playback versions for performance and compatibility.
+
+---
+
+## 🔄 **Relationships Summary**
+
+| From          | Relationship | To                      |
+| ------------- | ------------ | ----------------------- |
+| User          | belongsTo    | Organization            |
+| Organization  | hasMany      | Users                   |
+| User          | hasMany      | Courses (as Instructor) |
+| Course        | hasMany      | CourseVersions          |
+| CourseVersion | hasMany      | Modules                 |
+| Module        | hasMany      | Lessons                 |
+| Lesson        | hasMany      | MediaFiles              |
+| Lesson        | belongsTo    | Module                  |
+| MediaFile     | belongsTo    | Lesson                  |
+| MediaFile     | hasOne       | Video                   |
+| Video         | hasMany      | VideoRenditions         |
+| Video         | hasMany      | TranscodingJobs         |
+| Course        | hasMany      | CourseRuns              |
+| CourseRun     | hasMany      | Enrollments             |
+| Enrollment    | belongsTo    | User, CourseRun         |
+| User          | hasOne       | Wallet                  |
+| Wallet        | hasMany      | WalletTransactions      |
+| User          | hasMany      | Payments                |
+| CourseRun     | hasMany      | Payments                |
+
+---
+
+## 💡 **In summary — what your system does**
+
+> 🔹 It manages courses, versions, and learning sessions.
+> 🔹 It supports structured lesson content with videos and media.
+> 🔹 It allows students to enroll, pay, and track progress.
+> 🔹 It handles payments through both direct transactions and wallet systems.
+> 🔹 It organizes users into companies or institutions.
+> 🔹 It includes a backend system for video processing and storage.
+
+Essentially, this is a **full-featured online education platform backend** — modular, scalable, and ready to integrate with a front-end (Vue, React, or Livewire).
+
+---

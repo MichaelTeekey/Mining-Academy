@@ -13,6 +13,11 @@ class LessonRequest extends FormRequest
 
     public function rules(): array
     {
+
+        $user = auth()->user();
+        if (!$user || !in_array($user->role ?? null, ['admin', 'instructor'])) {
+            abort(403, 'Only admins and instructors can create course runs.');
+        }
         return [
             'module_id' => 'required|uuid|exists:modules,id',
             'title' => 'required|string|max:255',

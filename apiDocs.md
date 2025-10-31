@@ -243,7 +243,7 @@ Base path: https://mining.zomacdigital.co.zw/api/v1
 - Endpoint: `GET /api/v1/lessons/{id}`  
 - Auth: Public  
 - Description: Returns a specific lesson with its media files.
-
+0199ddb1-04c9-70d7-8815-563d93e91695
 ### 27. Create Lesson
 - Endpoint: `POST /api/v1/lessons`  
 - Auth: Bearer token (Instructor)  
@@ -278,7 +278,7 @@ Base path: https://mining.zomacdigital.co.zw/api/v1
 ---
 
 ## Enrollments
-
+ 
 ### 30. Enroll in a Course Run
 - Endpoint: `POST /api/v1/enroll`  
 - Auth: Bearer token (Student)  

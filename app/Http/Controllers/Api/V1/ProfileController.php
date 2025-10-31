@@ -10,6 +10,10 @@ class ProfileController extends Controller
     //
     public function me(Request $request)
     {
-        return response()->json($request->user()->load('organization'));
+        try {
+            return response()->json($request->user()->load('organization'));
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Failed to retrieve user profile'], 500);
+        }
     }
 }

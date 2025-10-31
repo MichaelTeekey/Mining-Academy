@@ -21,6 +21,11 @@ class UpdateCourseRequest extends FormRequest
      */
     public function rules(): array
     {
+
+        $user = auth()->user();
+        if (!$user || !in_array($user->role ?? null, ['admin', 'instructor'])) {
+            abort(403, 'Only admins and instructors can create course runs.');
+        }
         return [
             'title' => 'sometimes|string|max:255',
             'description' => 'nullable|string',
