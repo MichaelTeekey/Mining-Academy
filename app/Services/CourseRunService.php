@@ -19,7 +19,7 @@ class CourseRunService
     {
         $query = CourseRun::with([
             // Deep eager loading: Course -> Modules -> Lessons -> Media
-            'course.modules.lessons.media',
+            'course.modules.lessons.mediaFiles',
             'course.instructor',
         ]);
 
@@ -78,7 +78,7 @@ class CourseRunService
             return DB::transaction(function () use ($data) {
                 $run = CourseRun::create($data);
                 Log::info('Course run created', ['id' => $run->id]);
-                return $run->load('course.modules.lessons.media');
+                return $run->load('course.modules.lessons.mediaFiles');
             });
         } catch (Exception $e) {
             Log::error('Error creating course run', ['error' => $e->getMessage()]);
@@ -100,7 +100,7 @@ class CourseRunService
             $run->update($data);
             Log::info('Course run updated', ['id' => $run->id]);
 
-            return $run->load('course.modules.lessons.media');
+            return $run->load('course.modules.lessons.mediaFiles');
         } catch (Exception $e) {
             Log::error('Course run update failed', ['id' => $run->id, 'error' => $e->getMessage()]);
             throw new Exception('Failed to update course run.');
